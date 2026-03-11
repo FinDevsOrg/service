@@ -18,8 +18,8 @@ POST http://localhost:8080/api/users
 Content-Type: application/json
 
 {
-    "name": "Jean Valjean",
-    "email": "prisoner24601@france.fr"
+    "name": "Anast Valjean",
+    "email": "anasta@france.fr"
 }
 
 ### Get user by ID (uses ID from createUser response)
@@ -87,6 +87,27 @@ Content-Type: application/json
 {
     "description": "Escape from Inspector Javert"
 }
+
+### Wallet Controller Endpoints
+
+### Create wallet for user (no request body)
+# @name createWallet
+POST http://localhost:8080/api/wallets/user/{{createUser.response.body.id}}
+
+### Add account to wallet (run this after createWallet)
+# @name addAccount
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts
+Content-Type: application/json
+
+{
+    "type": "checking",
+    "currency": "EUR",
+    "initialBalance": 150.00
+}
+
+### Get wallet by ID (uses ID from createWallet response)
+
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}
 
 
 # ==========================================

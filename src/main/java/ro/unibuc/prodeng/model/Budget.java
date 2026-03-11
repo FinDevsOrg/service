@@ -16,7 +16,6 @@ public class Budget {
     @NotBlank
     private String userId;
     
-    @NotBlank
     private String categoryId;
     
     @NotNull

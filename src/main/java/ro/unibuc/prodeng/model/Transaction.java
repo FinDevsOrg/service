@@ -14,6 +14,9 @@ public class Transaction {
     @NotNull(message = "Wallet ID is required")
     private String walletId;
 
+    @NotNull(message = "Account ID is required")
+    private String accountId;
+
     @NotNull(message = "Category ID is required")
     private String categoryId;
 
