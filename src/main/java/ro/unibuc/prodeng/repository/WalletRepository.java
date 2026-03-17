@@ -11,4 +11,5 @@ public interface WalletRepository extends MongoRepository<WalletEntity, String> 
 
     Optional<WalletEntity> findByUserId(String userId);
     boolean existsByUserId(String userId);
+    void deleteByUserId(String userId);
 }

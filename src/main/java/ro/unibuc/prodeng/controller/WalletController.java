@@ -3,7 +3,9 @@ package ro.unibuc.prodeng.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
 import ro.unibuc.prodeng.request.CreateAccountRequest;
+import ro.unibuc.prodeng.request.UpdateAccountBalanceRequest;
 import ro.unibuc.prodeng.response.WalletResponse;
 import ro.unibuc.prodeng.service.WalletService;
 
@@ -30,6 +33,13 @@ public class WalletController {
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<WalletResponse> getWalletByUserId(@PathVariable String userId)
+            throws EntityNotFoundException {
+        WalletResponse wallet = walletService.getWalletByUserId(userId);
+        return ResponseEntity.ok(wallet);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<WalletResponse> getWalletById(@PathVariable String id)
             throws EntityNotFoundException {
@@ -43,5 +53,37 @@ public class WalletController {
             @Valid @RequestBody CreateAccountRequest request) throws EntityNotFoundException {
         WalletResponse wallet = walletService.addAccount(id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWallet(@PathVariable String id) throws EntityNotFoundException {
+        walletService.deleteWallet(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{walletId}/accounts/{accountId}")
+    public ResponseEntity<Void> deleteAccount(
+            @PathVariable String walletId,
+            @PathVariable String accountId) throws EntityNotFoundException {
+        walletService.deleteAccount(walletId, accountId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{walletId}/accounts/{accountId}/deposit")
+    public ResponseEntity<WalletResponse> deposit(
+            @PathVariable String walletId,
+            @PathVariable String accountId,
+            @Valid @RequestBody UpdateAccountBalanceRequest request) throws EntityNotFoundException {
+        WalletResponse wallet = walletService.deposit(walletId, accountId, request);
+        return ResponseEntity.ok(wallet);
+    }
+
+    @PatchMapping("/{walletId}/accounts/{accountId}/withdraw")
+    public ResponseEntity<WalletResponse> withdraw(
+            @PathVariable String walletId,
+            @PathVariable String accountId,
+            @Valid @RequestBody UpdateAccountBalanceRequest request) throws EntityNotFoundException {
+        WalletResponse wallet = walletService.withdraw(walletId, accountId, request);
+        return ResponseEntity.ok(wallet);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import ro.unibuc.prodeng.model.UserEntity;
 import ro.unibuc.prodeng.repository.UserRepository;
+import ro.unibuc.prodeng.repository.WalletRepository;
 import ro.unibuc.prodeng.request.CreateUserRequest;
 import ro.unibuc.prodeng.response.UserResponse;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
@@ -16,6 +17,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -59,6 +63,7 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException(id);
         }
+        walletRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
 

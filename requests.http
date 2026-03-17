@@ -106,8 +106,32 @@ Content-Type: application/json
 }
 
 ### Get wallet by ID (uses ID from createWallet response)
-
 GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}
+
+### Get wallet by user ID
+GET http://localhost:8080/api/wallets/user/{{createUser.response.body.id}}
+
+### Deposit into account
+PATCH http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/deposit
+Content-Type: application/json
+
+{
+    "amount": 50.00
+}
+
+### Withdraw from account
+PATCH http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/withdraw
+Content-Type: application/json
+
+{
+    "amount": 20.00
+}
+
+### Delete account from wallet
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}
+
+### Delete wallet
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}
 
 
 # ==========================================
