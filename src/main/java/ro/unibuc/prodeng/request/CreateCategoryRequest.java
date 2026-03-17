@@ -2,7 +2,10 @@ package ro.unibuc.prodeng.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class CreateCategoryRequest {
+public record CreateCategoryRequest(
+    @NotBlank(message = "User ID is required")
+    String userId,
+
     @NotBlank(message = "Name is required")
-    private String name;
-}
+    String name
+) {}

@@ -2,20 +2,18 @@ package ro.unibuc.prodeng.request;
 
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import ro.unibuc.prodeng.model.TransactionType;
 
-public class TransactionRequest {
-    @NotBlank(message = "Wallet ID is required")
-    private String walletId;
-
-    @NotBlank(message = "Category ID is required")
-    private String categoryId;
+public record TransactionRequest(
+    @NotNull(message = "Transaction type is required")
+    TransactionType type,
 
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be a positive value")
-    private BigDecimal amount;
+    BigDecimal amount,
 
-    private String description;
-}
+    String categoryId,
+    String description
+) {}

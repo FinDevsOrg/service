@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ro.unibuc.prodeng.model.UserEntity;
+import ro.unibuc.prodeng.repository.BudgetRepository;
+import ro.unibuc.prodeng.repository.CategoryRepository;
 import ro.unibuc.prodeng.repository.UserRepository;
 import ro.unibuc.prodeng.repository.WalletRepository;
 import ro.unibuc.prodeng.request.CreateUserRequest;
@@ -20,6 +22,12 @@ public class UserService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -63,6 +71,8 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException(id);
         }
+        budgetRepository.deleteByUserId(id);
+        categoryRepository.deleteByUserId(id);
         walletRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
 import ro.unibuc.prodeng.request.CreateAccountRequest;
+import ro.unibuc.prodeng.request.TransactionRequest;
 import ro.unibuc.prodeng.request.UpdateAccountBalanceRequest;
 import ro.unibuc.prodeng.response.WalletResponse;
 import ro.unibuc.prodeng.service.WalletService;
@@ -52,6 +53,15 @@ public class WalletController {
             @PathVariable String id,
             @Valid @RequestBody CreateAccountRequest request) throws EntityNotFoundException {
         WalletResponse wallet = walletService.addAccount(id, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
+    }
+
+    @PostMapping("/{walletId}/accounts/{accountId}/transactions")
+    public ResponseEntity<WalletResponse> createTransaction(
+            @PathVariable String walletId,
+            @PathVariable String accountId,
+            @Valid @RequestBody TransactionRequest request) throws EntityNotFoundException {
+        WalletResponse wallet = walletService.createTransaction(walletId, accountId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
     }
 

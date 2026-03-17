@@ -1,15 +1,16 @@
 package ro.unibuc.prodeng.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import ro.unibuc.prodeng.model.UserEntity;
+import ro.unibuc.prodeng.repository.BudgetRepository;
+import ro.unibuc.prodeng.repository.CategoryRepository;
 import ro.unibuc.prodeng.repository.UserRepository;
+import ro.unibuc.prodeng.repository.WalletRepository;
 import ro.unibuc.prodeng.request.CreateUserRequest;
 import ro.unibuc.prodeng.response.UserResponse;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
@@ -27,6 +28,15 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private WalletRepository walletRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private BudgetRepository budgetRepository;
 
     @InjectMocks
     private UserService userService;
@@ -136,6 +146,9 @@ class UserServiceTest {
         userService.deleteUser("1");
 
         // Assert
+        verify(budgetRepository, times(1)).deleteByUserId("1");
+        verify(categoryRepository, times(1)).deleteByUserId("1");
+        verify(walletRepository, times(1)).deleteByUserId("1");
         verify(userRepository, times(1)).deleteById("1");
     }
 

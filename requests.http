@@ -127,6 +127,74 @@ Content-Type: application/json
     "amount": 20.00
 }
 
+### Create category
+# @name createCategory
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+    "userId": "{{createUser.response.body.id}}",
+    "name": "Food"
+}
+
+### Get categories by user
+GET http://localhost:8080/api/categories?userId={{createUser.response.body.id}}
+
+### Set account monthly budget (categoryId null => account-wide limit)
+# @name setAccountBudget
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+Content-Type: application/json
+
+{
+    "categoryId": null,
+    "amountLimit": 200.00,
+    "month": 3,
+    "year": 2026
+}
+
+### Set category monthly budget
+# @name setCategoryBudget
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+Content-Type: application/json
+
+{
+    "categoryId": "{{createCategory.response.body.id}}",
+    "amountLimit": 120.00,
+    "month": 3,
+    "year": 2026
+}
+
+### Get budgets for account
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+
+### Create expense transaction (validates account + category limits)
+# @name createExpenseTransaction
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/transactions
+Content-Type: application/json
+
+{
+    "type": "EXPENSE",
+    "amount": 35.00,
+    "categoryId": "{{createCategory.response.body.id}}",
+    "description": "Groceries"
+}
+
+### Create income transaction
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/transactions
+Content-Type: application/json
+
+{
+    "type": "INCOME",
+    "amount": 100.00,
+    "description": "Salary"
+}
+
+### Delete category budget
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets/{{setCategoryBudget.response.body.id}}
+
+### Delete category
+DELETE http://localhost:8080/api/categories/{{createCategory.response.body.id}}
+
 ### Delete account from wallet
 DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}
 

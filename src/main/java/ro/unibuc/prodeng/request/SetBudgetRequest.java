@@ -5,19 +5,18 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
-public class SetBudgetRequest {
-    @NotBlank(message = "Category ID is required")
-    private String categoryId;
+public record SetBudgetRequest(
+    String categoryId,
 
     @NotNull(message = "Amount limit is required")
     @Positive(message = "Amount limit must be a positive value")
-    private BigDecimal amountLimit;
+    BigDecimal amountLimit,
 
     @Min(1) @Max(12)
-    private int month;
+    int month,
 
-    private int year;
-}
+    @Min(value = 2020, message = "Year must be >= 2020")
+    int year
+) {}
