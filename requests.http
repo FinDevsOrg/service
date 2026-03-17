@@ -18,8 +18,8 @@ POST http://localhost:8080/api/users
 Content-Type: application/json
 
 {
-    "name": "Jean Valjean",
-    "email": "prisoner24601@france.fr"
+    "name": "Anast Valjean",
+    "email": "test@france.fr"
 }
 
 ### Get user by ID (uses ID from createUser response)
@@ -87,6 +87,161 @@ Content-Type: application/json
 {
     "description": "Escape from Inspector Javert"
 }
+
+### Wallet Controller Endpoints
+
+### Create wallet for user (no request body)
+# @name createWallet
+POST http://localhost:8080/api/wallets/user/{{createUser.response.body.id}}
+
+### Get wallet by ID (uses ID from createWallet response)
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}
+
+### Get wallet by user ID
+GET http://localhost:8080/api/wallets/user/{{createUser.response.body.id}}
+
+### Add account to wallet (run this after createWallet)
+# @name addAccount
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts
+Content-Type: application/json
+
+{
+    "type": "checking",
+    "currency": "EUR",
+    "initialBalance": 150.00
+}
+
+### Get single account
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}
+
+### Get account transactions
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/transactions
+
+
+### Deposit into account
+PATCH http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/deposit
+Content-Type: application/json
+
+{
+    "amount": 50.00
+}
+
+### Withdraw from account
+PATCH http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/withdraw
+Content-Type: application/json
+
+{
+    "amount": 20.00
+}
+
+### Create category
+# @name createCategory
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+    "userId": "{{createUser.response.body.id}}",
+    "name": "Food"
+}
+
+### Get categories by user
+GET http://localhost:8080/api/categories?userId={{createUser.response.body.id}}
+
+### Update category name
+PATCH http://localhost:8080/api/categories/{{createCategory.response.body.id}}
+Content-Type: application/json
+
+{
+    "name": "Food"
+}
+
+### Set category monthly budget
+# @name setCategoryBudget
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+Content-Type: application/json
+
+{
+    "categoryId": "{{createCategory.response.body.id}}",
+    "amountLimit": 120.00,
+    "month": 3,
+    "year": 2026
+}
+
+### Set account monthly budget (categoryId null => account-wide limit)
+# @name setAccountBudget
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+Content-Type: application/json
+
+{
+    "categoryId": null,
+    "amountLimit": 200.00,
+    "month": 3,
+    "year": 2026
+}
+
+### Get budgets for account
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets
+
+### Get single budget
+GET http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets/{{setAccountBudget.response.body.id}}
+
+### Update budget amount
+PATCH http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets/{{setAccountBudget.response.body.id}}
+Content-Type: application/json
+
+{
+    "amountLimit": 300.00
+}
+
+### Create expense transaction (validates account + category limits)
+# @name createExpenseTransaction
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/transactions
+Content-Type: application/json
+
+{
+    "type": "EXPENSE",
+    "amount": 100.00,
+    "categoryId": "{{createCategory.response.body.id}}",
+    "description": "Groceries"
+}
+
+### Create income transaction
+POST http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/transactions
+Content-Type: application/json
+
+{
+    "type": "INCOME",
+    "amount": 100.00,
+    "description": "Salary"
+}
+
+### Get all transactions
+GET http://localhost:8080/api/transactions
+
+### Get transactions by wallet
+GET http://localhost:8080/api/transactions?walletId={{createWallet.response.body.id}}
+
+### Get transactions by account
+GET http://localhost:8080/api/transactions?walletId={{createWallet.response.body.id}}&accountId={{addAccount.response.body.accounts[0].id}}
+
+### Get transactions by category
+GET http://localhost:8080/api/transactions?categoryId={{createCategory.response.body.id}}
+
+### Get transactions by user
+GET http://localhost:8080/api/transactions?userId={{createUser.response.body.id}}
+
+
+### Delete category budget
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}/budgets/{{setCategoryBudget.response.body.id}}
+
+### Delete category
+DELETE http://localhost:8080/api/categories/{{createCategory.response.body.id}}
+
+### Delete account from wallet
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}/accounts/{{addAccount.response.body.accounts[0].id}}
+
+### Delete wallet
+DELETE http://localhost:8080/api/wallets/{{createWallet.response.body.id}}
 
 
 # ==========================================
