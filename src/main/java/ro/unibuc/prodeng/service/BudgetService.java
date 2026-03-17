@@ -14,6 +14,7 @@ import ro.unibuc.prodeng.repository.BudgetRepository;
 import ro.unibuc.prodeng.repository.CategoryRepository;
 import ro.unibuc.prodeng.repository.WalletRepository;
 import ro.unibuc.prodeng.request.SetBudgetRequest;
+import ro.unibuc.prodeng.request.UpdateBudgetRequest;
 import ro.unibuc.prodeng.response.BudgetResponse;
 
 @Service
@@ -68,6 +69,45 @@ public class BudgetService {
         );
 
         Budget saved = budgetRepository.save(budgetToSave);
+        return toResponse(saved);
+    }
+
+    public BudgetResponse getBudget(String walletId, String accountId, String budgetId) throws EntityNotFoundException {
+        String safeWalletId = Objects.requireNonNull(walletId, "walletId must not be null");
+        String safeAccountId = Objects.requireNonNull(accountId, "accountId must not be null");
+        String safeBudgetId = Objects.requireNonNull(budgetId, "budgetId must not be null");
+
+        getWalletWithAccount(safeWalletId, safeAccountId);
+
+        Budget budget = budgetRepository.findByIdAndWalletIdAndAccountId(safeBudgetId, safeWalletId, safeAccountId)
+                .orElseThrow(() -> new EntityNotFoundException("Budget: " + safeBudgetId));
+
+        return toResponse(budget);
+    }
+    
+    public BudgetResponse updateBudget(String walletId, String accountId, String budgetId, UpdateBudgetRequest request) throws EntityNotFoundException {
+        String safeWalletId = Objects.requireNonNull(walletId, "walletId must not be null");
+        String safeAccountId = Objects.requireNonNull(accountId, "accountId must not be null");
+        String safeBudgetId = Objects.requireNonNull(budgetId, "budgetId must not be null");
+        UpdateBudgetRequest safeRequest = Objects.requireNonNull(request, "request must not be null");
+
+        getWalletWithAccount(safeWalletId, safeAccountId);
+
+        Budget existing = budgetRepository.findByIdAndWalletIdAndAccountId(safeBudgetId, safeWalletId, safeAccountId)
+                .orElseThrow(() -> new EntityNotFoundException("Budget: " + safeBudgetId));
+
+        Budget updated = new Budget(
+                existing.id(),
+                existing.userId(),
+                existing.walletId(),
+                existing.accountId(),
+                existing.categoryId(),
+                safeRequest.amountLimit(),
+                existing.month(),
+                existing.year()
+        );
+
+        Budget saved = budgetRepository.save(updated);
         return toResponse(saved);
     }
 

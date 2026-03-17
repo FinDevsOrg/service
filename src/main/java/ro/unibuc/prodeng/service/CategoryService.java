@@ -11,6 +11,7 @@ import ro.unibuc.prodeng.model.Category;
 import ro.unibuc.prodeng.repository.BudgetRepository;
 import ro.unibuc.prodeng.repository.CategoryRepository;
 import ro.unibuc.prodeng.request.CreateCategoryRequest;
+import ro.unibuc.prodeng.request.UpdateCategoryRequest;
 import ro.unibuc.prodeng.response.CategoryResponse;
 
 @Service
@@ -49,6 +50,33 @@ public class CategoryService {
         return categoryRepository.findByUserId(safeUserId).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public CategoryResponse updateCategory(String id, UpdateCategoryRequest request) throws EntityNotFoundException {
+        String safeId = Objects.requireNonNull(id, "id must not be null");
+        UpdateCategoryRequest safeRequest = Objects.requireNonNull(request, "request must not be null");
+        String safeName = Objects.requireNonNull(safeRequest.name(), "name must not be null").trim();
+
+        if (safeName.isEmpty()) {
+            throw new IllegalArgumentException("Category name cannot be empty");
+        }
+
+        Category existing = categoryRepository.findById(safeId)
+                .orElseThrow(() -> new EntityNotFoundException("Category: " + safeId));
+
+        // Check if another category with the same name already exists for this user
+        if (categoryRepository.existsByUserIdAndNameIgnoreCase(existing.userId(), safeName)) {
+            Category current = categoryRepository.findByUserIdAndName(existing.userId(), safeName)
+                    .orElse(null);
+            // Allow if it's the same category being updated
+            if (current == null || !current.id().equals(safeId)) {
+                throw new IllegalArgumentException("Category already exists for user: " + safeName);
+            }
+        }
+
+        Category updated = new Category(existing.id(), existing.userId(), safeName);
+        Category saved = categoryRepository.save(updated);
+        return toResponse(saved);
     }
 
     public void deleteCategory(String id) throws EntityNotFoundException {

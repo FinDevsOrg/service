@@ -12,6 +12,7 @@ import ro.unibuc.prodeng.model.Category;
 public interface CategoryRepository extends MongoRepository<Category, String> {
 
     List<Category> findByUserId(String userId);
+    Optional<Category> findByUserIdAndName(String userId, String name);
 
     boolean existsByUserIdAndNameIgnoreCase(String userId, String name);
 

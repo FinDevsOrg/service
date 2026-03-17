@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
 import ro.unibuc.prodeng.request.SetBudgetRequest;
+import ro.unibuc.prodeng.request.UpdateBudgetRequest;
 import ro.unibuc.prodeng.response.BudgetResponse;
 import ro.unibuc.prodeng.service.BudgetService;
 
@@ -44,6 +46,24 @@ public class BudgetController {
             @RequestParam(required = false) Integer year) throws EntityNotFoundException {
         List<BudgetResponse> budgets = budgetService.getBudgets(walletId, accountId, month, year);
         return ResponseEntity.ok(budgets);
+    }
+    @GetMapping("/{budgetId}")
+    public ResponseEntity<BudgetResponse> getBudget(
+            @PathVariable String walletId,
+            @PathVariable String accountId,
+            @PathVariable String budgetId) throws EntityNotFoundException {
+        BudgetResponse budget = budgetService.getBudget(walletId, accountId, budgetId);
+        return ResponseEntity.ok(budget);
+    }
+
+    @PatchMapping("/{budgetId}")
+    public ResponseEntity<BudgetResponse> updateBudget(
+            @PathVariable String walletId,
+            @PathVariable String accountId,
+            @PathVariable String budgetId,
+            @Valid @RequestBody UpdateBudgetRequest request) throws EntityNotFoundException {
+        BudgetResponse budget = budgetService.updateBudget(walletId, accountId, budgetId, request);
+        return ResponseEntity.ok(budget);
     }
 
     @DeleteMapping("/{budgetId}")

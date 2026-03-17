@@ -19,6 +19,9 @@ import ro.unibuc.prodeng.request.TransactionRequest;
 import ro.unibuc.prodeng.request.UpdateAccountBalanceRequest;
 import ro.unibuc.prodeng.response.WalletResponse;
 import ro.unibuc.prodeng.service.WalletService;
+import ro.unibuc.prodeng.response.AccountResponse;
+import ro.unibuc.prodeng.response.TransactionResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/wallets")
@@ -48,19 +51,30 @@ public class WalletController {
         return ResponseEntity.ok(wallet);
     }
 
+    @GetMapping("/{walletId}/accounts/{accountId}")
+public ResponseEntity<AccountResponse> getAccount(
+        @PathVariable String walletId,
+        @PathVariable String accountId) throws EntityNotFoundException {
+    AccountResponse account = walletService.getAccount(walletId, accountId);
+    return ResponseEntity.ok(account);
+}
+
+@GetMapping("/{walletId}/accounts/{accountId}/transactions")
+public ResponseEntity<List<TransactionResponse>> getAccountTransactions(
+        @PathVariable String walletId,
+        @PathVariable String accountId) throws EntityNotFoundException {
+    List<TransactionResponse> transactions = walletService.getAccountTransactions(walletId, accountId);
+    return ResponseEntity.ok(transactions);
+}
+
     @PostMapping("/{id}/accounts")
-    public ResponseEntity<WalletResponse> addAccount(
-            @PathVariable String id,
-            @Valid @RequestBody CreateAccountRequest request) throws EntityNotFoundException {
+    public ResponseEntity<WalletResponse> addAccount(@PathVariable String id,@Valid @RequestBody CreateAccountRequest request) throws EntityNotFoundException {
         WalletResponse wallet = walletService.addAccount(id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
     }
 
     @PostMapping("/{walletId}/accounts/{accountId}/transactions")
-    public ResponseEntity<WalletResponse> createTransaction(
-            @PathVariable String walletId,
-            @PathVariable String accountId,
-            @Valid @RequestBody TransactionRequest request) throws EntityNotFoundException {
+    public ResponseEntity<WalletResponse> createTransaction(@PathVariable String walletId, @PathVariable String accountId, @Valid @RequestBody TransactionRequest request) throws EntityNotFoundException {
         WalletResponse wallet = walletService.createTransaction(walletId, accountId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(wallet);
     }

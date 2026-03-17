@@ -24,6 +24,7 @@ import ro.unibuc.prodeng.request.CreateAccountRequest;
 import ro.unibuc.prodeng.request.TransactionRequest;
 import ro.unibuc.prodeng.request.UpdateAccountBalanceRequest;
 import ro.unibuc.prodeng.response.AccountResponse;
+import ro.unibuc.prodeng.response.TransactionResponse;
 import ro.unibuc.prodeng.response.WalletResponse;
 
 @Service
@@ -187,6 +188,47 @@ public class WalletService {
         );
 
         walletRepository.save(updatedWallet);
+    }
+
+    public AccountResponse getAccount(String walletId, String accountId) throws EntityNotFoundException {
+        String safeWalletId = Objects.requireNonNull(walletId, "walletId must not be null");
+        String safeAccountId = Objects.requireNonNull(accountId, "accountId must not be null");
+
+        WalletEntity wallet = findWalletById(safeWalletId);
+        AccountEntity account = wallet.accounts().stream()
+                .filter(a -> safeAccountId.equals(a.id()))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Account: " + safeAccountId));
+
+        return toAccountResponse(account);
+    }
+    
+    public List<TransactionResponse> getAccountTransactions(String walletId, String accountId) throws EntityNotFoundException {
+        String safeWalletId = Objects.requireNonNull(walletId, "walletId must not be null");
+        String safeAccountId = Objects.requireNonNull(accountId, "accountId must not be null");
+
+        WalletEntity wallet = findWalletById(safeWalletId);
+        AccountEntity account = wallet.accounts().stream()
+                .filter(a -> safeAccountId.equals(a.id()))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Account: " + safeAccountId));
+
+        return account.transactions().stream()
+                .map(this::toTransactionResponse)
+                .toList();
+    }
+    
+    private TransactionResponse toTransactionResponse(Transaction transaction) {
+        return new TransactionResponse(
+                transaction.id(),
+                transaction.walletId(),
+                transaction.accountId(),
+                transaction.categoryId(),
+                transaction.amount(),
+                transaction.type(),
+                transaction.date(),
+                transaction.description()
+        );
     }
 
     private WalletResponse applyTransaction(
