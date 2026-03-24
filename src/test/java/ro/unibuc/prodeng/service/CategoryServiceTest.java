@@ -115,6 +115,48 @@ class CategoryServiceTest {
     }
 
     @Test
+    void updateCategory_emptyName_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.updateCategory("cat1", new UpdateCategoryRequest("")));
+        verify(categoryRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCategory_duplicateNameDifferentCategory_throwsIllegalArgumentException() throws EntityNotFoundException {
+        UpdateCategoryRequest request = new UpdateCategoryRequest("Food");
+        when(categoryRepository.findById("cat2")).thenReturn(Optional.of(new Category("cat2", "user1", "Transport")));
+        when(categoryRepository.existsByUserIdAndNameIgnoreCase("user1", "Food")).thenReturn(true);
+        when(categoryRepository.findByUserIdAndName("user1", "Food")).thenReturn(Optional.of(new Category("cat1", "user1", "Food")));
+
+        assertThrows(IllegalArgumentException.class, () -> categoryService.updateCategory("cat2", request));
+        verify(categoryRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCategory_duplicateNameCurrentNull_throwsIllegalArgumentException() throws EntityNotFoundException {
+        UpdateCategoryRequest request = new UpdateCategoryRequest("Food");
+        when(categoryRepository.findById("cat2")).thenReturn(Optional.of(new Category("cat2", "user1", "Transport")));
+        when(categoryRepository.existsByUserIdAndNameIgnoreCase("user1", "Food")).thenReturn(true);
+        when(categoryRepository.findByUserIdAndName("user1", "Food")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> categoryService.updateCategory("cat2", request));
+        verify(categoryRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCategory_duplicateNameSameCategory_returnsUpdatedCategory() throws EntityNotFoundException {
+        UpdateCategoryRequest request = new UpdateCategoryRequest("Food");
+        when(categoryRepository.findById("cat1")).thenReturn(Optional.of(new Category("cat1", "user1", "Food")));
+        when(categoryRepository.existsByUserIdAndNameIgnoreCase("user1", "Food")).thenReturn(true);
+        when(categoryRepository.findByUserIdAndName("user1", "Food")).thenReturn(Optional.of(new Category("cat1", "user1", "Food")));
+        when(categoryRepository.save(any(Category.class))).thenReturn(new Category("cat1", "user1", "Food"));
+
+        CategoryResponse result = categoryService.updateCategory("cat1", request);
+
+        assertEquals("Food", result.name());
+    }
+
+    @Test
     void deleteCategory_validId_deletesCategoryAndBudgets() throws EntityNotFoundException {
         when(categoryRepository.findById("cat1")).thenReturn(Optional.of(new Category("cat1", "user1", "Food")));
 
