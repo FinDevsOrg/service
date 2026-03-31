@@ -6,9 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import ro.unibuc.prodeng.repository.UserRepository;
-import ro.unibuc.prodeng.request.CreateTodoRequest;
 import ro.unibuc.prodeng.request.CreateUserRequest;
-import ro.unibuc.prodeng.service.TodoService;
 import ro.unibuc.prodeng.service.UserService;
 
 import jakarta.annotation.PostConstruct;
@@ -20,8 +18,6 @@ public class ProdEngApplication {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private TodoService todoService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -35,7 +31,6 @@ public class ProdEngApplication {
 		if (userRepository.findByEmail("frodo@theshire.me").isEmpty()) {
 			CreateUserRequest userRequest = new CreateUserRequest("Frodo Baggins", "frodo@theshire.me");
 			userService.createUser(userRequest);
-			todoService.createTodo(new CreateTodoRequest("Take the ring to Mordor", "frodo@theshire.me"));
 		}
 	}
 }
