@@ -1,30 +1,25 @@
 pipeline {
     agent any
-
     tools {
         jdk 'jdk21'
         gradle 'gradle-8'
     }
-
     environment {
         DOCKER_HUB_USERNAME = 'anastasiaispas'
         DOCKER_PASSWORD = credentials('docker_password')
         GITHUB_TOKEN = credentials('github_token')
     }
-
     stages {
         stage('Build') {
             steps {
                 sh './gradlew clean build'
             }
         }
-
         stage('Test') {
             steps {
                 sh './gradlew test'
             }
         }
-
         stage('Version & Tag') {
             steps {
                 script {
@@ -47,13 +42,11 @@ pipeline {
                 }
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $DOCKER_HUB_USERNAME/prod-eng-img:$IMAGE_TAG .'
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 sh '''
@@ -62,21 +55,12 @@ pipeline {
                 '''
             }
         }
-
         stage('Tag Release') {
             steps {
                 sh '''
                     git tag $IMAGE_TAG
                     git push https://$GITHUB_TOKEN_PSW@github.com/FinDevsOrg/service.git $IMAGE_TAG
                 '''
-            }
-        }
-    }
-
-    post {
-        always {
-            node {
-                sh 'docker logout'
             }
         }
     }
