@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_USERNAME = 'YOUR_DOCKERHUB_USERNAME'
+        DOCKER_HUB_USERNAME = 'anastasiaispas'
         DOCKER_PASSWORD = credentials('docker_password')
         GITHUB_TOKEN = credentials('github_token')
     }
@@ -28,7 +28,7 @@ pipeline {
         stage('Version & Tag') {
             steps {
                 script {
-                    sh 'git fetch --tag'
+                    sh 'git fetch --tags'
                     env.MAJOR_VERSION = sh(
                         script: 'git tag | sort -V | tail -1 | cut -d . -f 1',
                         returnStdout: true
@@ -67,7 +67,7 @@ pipeline {
             steps {
                 sh '''
                     git tag $IMAGE_TAG
-                    git push https://$GITHUB_TOKEN_PSW@github.com/YOUR-ORG/service.git $IMAGE_TAG
+                    git push https://$GITHUB_TOKEN_PSW@github.com/FinDevsOrg/service.git $IMAGE_TAG
                 '''
             }
         }
@@ -75,7 +75,9 @@ pipeline {
 
     post {
         always {
-            sh 'docker logout'
+            node {
+                sh 'docker logout'
+            }
         }
     }
 }
