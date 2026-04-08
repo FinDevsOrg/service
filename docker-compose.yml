@@ -27,6 +27,8 @@ services:
     profiles:
       - "prod-eng-service"
     user: 0:0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   mongo:
     image: mongo:6.0.20
     restart: always
