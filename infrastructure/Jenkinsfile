@@ -83,4 +83,18 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            junit '**/build/test-results/**/*.xml'
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: false,
+                keepAll: true,
+                reportDir: 'build/reports/tests/test',
+                reportFiles: 'index.html',
+                reportName: 'Test Report'
+            ])
+            sh 'docker logout'
+        }
+    }
 }
