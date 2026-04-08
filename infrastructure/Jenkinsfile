@@ -5,7 +5,7 @@ pipeline {
         gradle 'gradle-8'
     }
     environment {
-        DOCKER_HUB_USERNAME = 'robertagabriela'
+        DOCKER_HUB_USERNAME = 'findevsorg'
         DOCKER_PASSWORD = credentials('docker_password')
         GITHUB_TOKEN = credentials('github_token')
     }
