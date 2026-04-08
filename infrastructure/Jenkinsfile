@@ -69,6 +69,11 @@ pipeline {
                 }
             }
         }
+        stage('Integration Tests') {
+            steps {
+                sh 'MONGODB_CONECTION_URL=mongodb://root:example@host.docker.internal:27017 ./gradlew testIT'
+            }
+        }
         stage('Tag Release') {
             steps {
                 sh '''
