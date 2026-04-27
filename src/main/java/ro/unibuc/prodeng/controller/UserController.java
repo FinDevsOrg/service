@@ -13,6 +13,7 @@ import ro.unibuc.prodeng.request.CreateUserRequest;
 import ro.unibuc.prodeng.response.UserResponse;
 import ro.unibuc.prodeng.exception.EntityNotFoundException;
 import ro.unibuc.prodeng.service.UserService;
+import ro.unibuc.prodeng.metrics.MetricsService;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,6 +21,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MetricsService metricsService;
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -36,6 +40,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserResponse user = userService.createUser(request);
+        // record a custom metric for created users
+        try {
+            metricsService.recordUserCreated();
+        } catch (Exception e) {
+            // don't break user creation flow if metrics fail
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
