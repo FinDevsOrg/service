@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MetricsService {
     private final MeterRegistry registry;
     private final Counter userCreatedCounter;
+    private final Counter usersRetrievedCounter;
     private final Timer requestTimer;
     private final AtomicInteger dbConnectionsActive = new AtomicInteger(0);
     private final WalletRepository walletRepository;
@@ -28,19 +29,29 @@ public class MetricsService {
         this.walletRepository = walletRepository;
         this.mongoClientProvider = mongoClientProvider;
 
+        //counter
         this.userCreatedCounter = Counter.builder("app_users_created")
                 .description("Total number of users created")
                 .register(registry);
 
+        this.usersRetrievedCounter = Counter.builder("app_users_retrieved")
+            .description("Total number of get users requests")
+            .register(registry);
+
+        
+        //histrogram
         this.requestTimer = Timer.builder("app_request_duration_seconds")
                 .description("API endpoint response time")
                 .publishPercentiles(0.5, 0.95)
                 .register(registry);
 
+        //gauge
         Gauge.builder("app_db_connections_active", dbConnectionsActive, AtomicInteger::get)
                 .description("Currently active database connections")
                 .register(registry);
 
+
+        //gauge
         Gauge.builder("app_items_in_cart", this, svc -> svc.computeItemsInCart())
                 .description("Current number of items across all carts (domain-specific)")
                 .register(registry);
@@ -48,6 +59,10 @@ public class MetricsService {
 
     public void recordUserCreated() {
         userCreatedCounter.increment();
+    }
+
+    public void recordUsersRetrieved() {
+        usersRetrievedCounter.increment();
     }
 
     public void recordRequestDuration(long durationNanos) {

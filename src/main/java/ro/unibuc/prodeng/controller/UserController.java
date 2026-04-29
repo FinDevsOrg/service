@@ -28,6 +28,11 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
+        try {
+            metricsService.recordUsersRetrieved();
+        } catch (Exception e) {
+            // don't break user listing flow if metrics fail
+        }
         return ResponseEntity.ok(users);
     }
 
