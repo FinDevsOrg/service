@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
     "name": "Anast Valjean",
-    "email": "test@france.fr"
+    "email": "test7@france.fr"
 }
 
 ### Get user by ID (uses ID from createUser response)

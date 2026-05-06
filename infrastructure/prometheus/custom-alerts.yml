@@ -1,0 +1,57 @@
+groups:
+  - name: CustomAlerts
+    rules:
+      # --- Availability ---
+      - alert: WARNING-LowDatabaseConnections
+        expr: app_db_connections_active < 1
+        for: 1m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "Low database connections available"
+          description: "Active database connections have dropped below 1 for more than 1 minute. Database may be unreachable.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      # --- Performance ---
+      - alert: WARNING-HighRequestLatency
+        expr: rate(app_request_duration_seconds_sum[5m]) / rate(app_request_duration_seconds_count[5m]) > 1.0
+        for: 2m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High average request latency"
+          description: "Average request latency exceeds 1 second over the last 5 minutes.\n  VALUE = {{ $value | humanizeDuration }}s\n  LABELS = {{ $labels }}"
+
+      # --- Quality ---
+      - alert: WARNING-ElevatedErrorRate
+        expr: rate(app_errors_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          category: quality
+        annotations:
+          summary: "Error rate elevated"
+          description: "Error rate exceeds 1 error/sec over the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      # --- Business Logic (Transactions) ---
+      - alert: WARNING-ExcessiveTransactionsInWallets
+        expr: app_items_in_cart > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Excessive transactions accumulated across all wallets"
+          description: "Total number of transactions across all user wallets exceeds 5 for more than 5 minutes. This may indicate data accumulation or performance degradation issues.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      # --- User Activity ---
+      - alert: INFO-UsersCreated
+        expr: increase(app_users_total[1h]) > 5
+        for: 1m
+        labels:
+          severity: info
+          category: business
+        annotations:
+          summary: "Significant user creation activity"
+          description: "More than 5 users created in the last hour.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
